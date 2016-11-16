@@ -4,7 +4,7 @@
 %
 function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOutPath,res)
 
-	addpath(genpath('/cs/cbio/gil/matlab/BSFKFolder')); %%%%%%%%%%Give some errors
+	addpath(genpath('BSFKFolder')); %%%%%%%%%%Give some errors
 
 	if dxnPath == 0
 		skipDxn = true;
