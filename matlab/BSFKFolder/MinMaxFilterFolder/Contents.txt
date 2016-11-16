@@ -1,0 +1,34 @@
+Main Functions:
+	minmaxfilt.m -> Matlab file multi-dimensional min/max filter
+        minmaxfilt1.m -> Matlab file one-dimensional min/max filter
+	KramerBruckner.m -> Matlab file for Kramer & Bruckner filter
+
+Other files:
+	minmaxfilter_install.m -> Installation function (mex build)
+	slowminmaxfilt_algo.m -> Matlab file to illustrates how
+                             the basic Lemire's algorithm works
+    benchminmax.m -> Benchmark among four methods: 
+        1. Matlab vectorized using Hankel,
+        2. for-loop,
+        3. Lemire's MEX
+        4. Van Herk's method by Frederico D'Almeida
+	testminmaxfilt.m -> Test program of Min/Max fitering Package
+
+    lemire_nd_minengine.c -> MEX file for multiple 1D min engine (running min)
+    lemire_nd_maxengine.c -> MEX file for multiple 1D max engine (running max)
+    lemire_nd_minengine.m -> help file for MEX file lemire_nd_minengine.c
+    lemire_nd_maxengine.m -> help file for MEX file lemire_nd_maxengine.c
+
+    demolena.m -> demo KramerBruckner filtering
+    lena_std.tif -> no need for presentation!
+	Contents.txt -> This file
+    vanherk.m -> Frederico D'Almeida's implementation of 
+		 van Herk algorithm
+
+Those files are kept for backward compatibility, but no longer used
+    lemire_engine.c -> MEX file for single 1D engine (running min/max)
+    lemire_nd_engine.c -> MEX file for multiple 1D engine (running min/max)
+    lemire_engine.m -> help file for MEX file lemire_engine.c
+
+Author Bruno Luong <brunoluong@yahoo.com>
+Last update: 01-December-2009
