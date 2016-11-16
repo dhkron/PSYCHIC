@@ -1,8 +1,19 @@
 # PSYCHIC
 Code for finding putative enhancers using Hi-C data
 
-### Installation
-TODO
+### Usage
+python htad-chain <config file>
+
+#### Config file format
+[DefaultSection]
+res: <resolution of the Hi-C file, in bases (40000)>
+win: <interaction distance cutoff in bases, usually 2000000>
+chrname: <chromosome name, used for genes, size and output. should use 'chr1'..'chrX'>
+chrsize: <path to bed file of chromsome lengths (examples/hg19.size.bed)>
+output\_prefix: <output prefix for this conf file (hIMR90)>
+output\_dir: <path in which to store the output files (examples/output)>
+input\_matrix: <path to input Hi-C matrix, should be in either CSV file or Bingren & Dixon format (examples/hIMR90.chr20)>
+genes\_file: <path to bed file describing genes (examples/hg19.genes.bed)>
 
 ### Requirements
 The code was used on a Linux machine.
@@ -10,11 +21,9 @@ It has scripts in matlab, python and perl, so the minimal requirements would be 
 - matlab
 - python2.7
 - perl
-- \*nix command line utils: pushd, cut, sed
+- \*nix tools - cut, sed
+- a shell that supports pushd and popd
 - \*nix file paths (/example/of/a/path)
-
-### Usage
-TODO
 
 ### Filesystem
 - **`htad-chain.py`**
@@ -24,4 +33,4 @@ Main matlab files
 - **`domaincall_software/`**
 Slightly adapted files from [Hi-C DomainCaller](http://chromosome.sdsc.edu/mouse/hi-c/download.html)
 - **`examples/`**
-TBA, will contain configurations and stuff
+Example files, contains config, Hi-C matrix, chromsome sizes and gene list
