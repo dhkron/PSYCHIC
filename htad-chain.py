@@ -60,6 +60,13 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
+
+# All paths should be absolute
+chrsize = os.path.abspath(chrsize)
+output_dir = os.path.abspath(output_dir)
+input_matrix_path = os.path.abspath(input_matrix_path)
+fGenes = os.path.abspath(fGenes)
+
 try:
 	skipdixon = c.getboolean(sec,'skip_dixon')
 	try:
@@ -93,7 +100,6 @@ path_to_matlab = "matlab"
 
 #All files should be converted to absolute path, because I'm using pushd and popd
 fMatrix = input_matrix_path
-fMatrix = os.path.abspath(fMatrix)
 fMatrix2 = makeAbsFile("fixed_matrix")
 fDI = makeAbsFile("DI")
 fHMM = makeAbsFile("HMM")
