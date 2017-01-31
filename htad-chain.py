@@ -165,7 +165,7 @@ else:
 	print "Not fixing matrix"
 
 #Stage 1 - ./DI_from_matrix.pl matrix.chrN @res @win @chrsize > DI.chrN
-line_mat_to_di = "DI_from_matrix.pl %s %s %s %s > %s"
+line_mat_to_di = "perl DI_from_matrix.pl %s %s %s %s > %s"
 line_mat_to_di = line_mat_to_di%(fMatrix,res,win,chrsize,fDI)
 
 doStageWithFlag("DixonDI",line_mat_to_di,path_to_dixon_perl,flgDI)
