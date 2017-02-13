@@ -36,6 +36,27 @@ def doMatlabStageWithFlag(number,matline,directory,dump,flag):
 					print "Error occured in stage %s"%number
 					sys.exit(-1)
 
+def chrsizeFromFile(chrname, chrfile):
+	with open(chrfile, "rb") as f:
+		for line in f.readlines():
+			c_name, c_size = line.strip().split("\t",2)
+			if c_name == chrname:
+				return c_size
+	raise Exception("Failed to find chr")
+
+# Assumes input file is CSV: chrN\tSTART\tEND
+def fixDomainsFile(inFile, outFile, chrsize):
+	with open(inFile, "rb") as fIn, open(outFile, "wb") as fOut:
+		badLineEncountered = False
+		for line in fIn.readlines():
+			ls = line.strip().split("\t")
+			assert(not badLineEncountered)
+			if len(ls) == 3:
+				fOut.write("%s\t%s\n" % (ls[1], ls[2]))
+			if len(ls) == 2:
+				fOut.write("%s\t%s\n" % (ls[1], chrsize))
+				badLineEncountered = True
+
 def makeAbsFile(tmp):
 	global output_dir,prefix,chrname
 	fName = "%s/%s.%s.%s"%(output_dir,prefix,chrname,tmp)
@@ -194,8 +215,7 @@ doStageWithFlag("DixonDomains2",stage_line,path_to_dixon_perl,flgDomains)
 #Stage 5 - Generate useful easy loadable files
 if not skipdixon:
 	#Fix domains file
-	stage_line1 = "cut -f2- %s | sed '/\t$/d'> %s"%(fDomains,fDomainsDbg) #Delete bad lines
-	doStageWithFlag("FixDomainFormat","%s"%(stage_line1),".",flgStage5)
+	fixDomainsFile(fDomains, fDomainsDbg, chrsizeFromFile(chrname, chrsize))
 elif not domainpath == "":
 	#If skipped dixon and using a specific filename, use it
 	fDomainsDbg = domainpath
