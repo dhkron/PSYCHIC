@@ -12,11 +12,11 @@ for i = MIN_DIAG:MAX_DIAG
 		options = statset('MaxIter',1000);
 		try
 			GMModel = fitgmdist(dgn_clean,k,'Options',options);
+			a_gmm{i}=GMModel;
 		catch
 			a_gmm{i}.mu = mean(dgn_clean);
 			a_gmm{i}.Sigma = var(dgn_clean);
 		end
-		a_gmm{i}=GMModel;
 
 		[~,msgid] = lastwarn;
 		if strcmp(msgid, 'stats:gmdistribution:FailedToConverge')
