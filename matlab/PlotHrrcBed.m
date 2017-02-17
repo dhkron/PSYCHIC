@@ -42,7 +42,7 @@ function [] = PlotHrrcBed(fMatrix,fHrrcBed,s,e,res,filter,figPath)
 
 	offset = 1-s; %So that s is at 1
 	
-	DisplayHeatmap(log2(1+a),[],s:e,'red');
+	g = DisplayHeatmap(log2(1+a),[],s:e,'red');
 
 	for i = 1:numel(a_s)
 		s1 = floor(str2num(cell2mat(a_s(i)))/res)+1;
@@ -67,7 +67,6 @@ function [] = PlotHrrcBed(fMatrix,fHrrcBed,s,e,res,filter,figPath)
 	end
 
 	title(sprintf('range %d-%d',res*(s-1)+1,res*e));
-	g = gcf;
 	if hasFig
 		SaveFigure(g,figPath)
 		close(gcf);
