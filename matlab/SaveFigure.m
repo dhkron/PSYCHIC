@@ -1,7 +1,7 @@
 function SaveFigure(handle, path)
-	handle.Units = 'centimeters';
-	handle.PaperUnits = 'centimeters';
-	handle.PaperPosition = handle.Position;
+	%handle.Units = 'centimeters';
+	%handle.PaperUnits = 'centimeters';
+	%handle.PaperPosition = handle.Position;
 
 	[~,fname,fext] = fileparts(path);
 	

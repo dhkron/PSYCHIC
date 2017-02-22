@@ -36,6 +36,16 @@ def doMatlabStageWithFlag(number,matline,directory,dump,flag):
 					print "Error occured in stage %s"%number
 					sys.exit(-1)
 
+def doMatlabStageWithFlagDisplay(number,matline,directory,dump,flag):
+	line = "matlab -nodesktop -nosplash -r \"try %s;catch E;fprintf('AAABBBCCCAAA');getReport(E),end;exit\" 1>%s 2>%s"%(matline,dump,dump)
+	doStageWithFlag(number,line,directory,flag)
+	if flag:
+		with open(dump,'rb') as f:
+			for ln in f.readlines():
+				if 'AAABBBCCCAAA' in ln:
+					print "Error occured in stage %s"%number
+					sys.exit(-1)
+
 def chrsizeFromFile(chrname, chrfile):
 	with open(chrfile, "rb") as f:
 		for line in f.readlines():
@@ -276,13 +286,13 @@ stage_line = "ModelEstimate %s %s %s %s %d"
 stage_line = stage_line%(fMatrixDbg,fBed,fBedModelEstimated,fMatrixModelEstimated,res)
 doMatlabStageWithFlag("ModelEstimate",stage_line,path_to_matlab,matlab_dump,flgME)
 
-#Stage 11 - Create model estimated heatmap & BED describing the two power law
+#Stage 11 - Create an image of the hierarchies 
 matlab_dump = output_dir + "/%s.%s.mdump7"%(prefix,chrname)
 matlab_dump = os.path.abspath(matlab_dump)
 #	      PlotHrrcBed(fMatrix,fHrrcBed,s,e,res,filter,figPath)
 stage_line = "PlotHrrcBed %s %s %d %d %d %d %s"
 stage_line = stage_line%(fMatrixDbg,fBed,1,1000,res,0,fHrrcDebug)
-doMatlabStageWithFlag("DebugHierarchies",stage_line,path_to_matlab,matlab_dump,flgHrrcDebug)
+doMatlabStageWithFlagDisplay("DebugHierarchies",stage_line,path_to_matlab,matlab_dump,flgHrrcDebug)
 
 #Stage 12 - Find potential enhancers - overrepresented areas interacting with promotor 
 matlab_dump = output_dir + "/%s.%s.mdump8"%(prefix,chrname)
@@ -290,5 +300,5 @@ matlab_dump = os.path.abspath(matlab_dump)
 #	      EnhancerPromoter(fnij,fme,fgenes,res,ch,out4,out3,out2,outRand)
 stage_line = "EnhancerPromoter %s %s %s %d %s %s %s %s %s %s"
 stage_line = stage_line%(fMatrixDbg,fMatrixModelEstimated,fGenes,res,chrnum,fEnh4,fEnh3,fEnh2,fEnhR,fEnh52) 
-print stage_line
+#print stage_line
 doMatlabStageWithFlag("EnhancerPromoter",stage_line,path_to_matlab,matlab_dump,flgEnh)
