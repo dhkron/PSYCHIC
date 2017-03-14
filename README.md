@@ -15,7 +15,7 @@ from the repo directory.
 - `chrsize` path to bed file of chromsome lengths (examples/hg19.size.bed)
 - `output\_prefix` output prefix for this conf file (hIMR90)
 - `output\_dir` path in which to store the output files (examples/output)
-- `input\_matrix` path to input Hi-C matrix, should be in either CSV file or Bingren & Dixon format (examples/hIMR90.chr20). _This matrix must by symmetric_.
+- `input\_matrix` path to input Hi-C matrix, should be in either CSV file or Bing Ren & Dixon format (examples/hIMR90.chr20). _This matrix must be symmetric_.
 - `genes\_file` path to bed file describing genes (examples/hg19.genes.bed)
 
 For a functioning example config file consult `examples/himr90.chr20.conf`
