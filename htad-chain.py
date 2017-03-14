@@ -75,7 +75,7 @@ def makeAbsFile(tmp):
 
 #Load config from file
 if len(sys.argv) < 2:
-	print "Usage: %s <ConfigFile> <Display>"%sys.argv[0]
+	print "Usage: %s <ConfigFile>"%sys.argv[0]
 	exit()
 c = ConfigParser.ConfigParser()
 c.read(sys.argv[1])
@@ -91,6 +91,11 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
+
+# Make sure output exists
+if not os.path.isdir(output_dir):
+	print "The output directory '%s' does not exists! Please create it manually"%output_dir
+	sys.exit(-1)
 
 # All paths should be absolute
 chrsize = os.path.abspath(chrsize)
