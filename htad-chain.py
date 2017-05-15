@@ -75,7 +75,7 @@ def makeAbsFile(tmp):
 
 #Load config from file
 if len(sys.argv) < 2:
-	print "Usage: %s <ConfigFile>"%sys.argv[0]
+	print "Usage: %s <ConfigFile> <Display>"%sys.argv[0]
 	exit()
 c = ConfigParser.ConfigParser()
 c.read(sys.argv[1])
@@ -91,11 +91,6 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
-
-# Make sure output exists
-if not os.path.isdir(output_dir):
-	print "The output directory '%s' does not exists! Please create it manually"%output_dir
-	sys.exit(-1)
 
 # All paths should be absolute
 chrsize = os.path.abspath(chrsize)
@@ -124,6 +119,10 @@ except ConfigParser.NoOptionError:
 #Params for Dixon subchain
 hmm_min = 2
 hmm_prob = 0.99
+if len(sys.argv) >= 3:
+	display = sys.argv[2]
+else:
+	display = False
 
 #Inner parameters
 path_to_dixon = "domaincall_software"
@@ -236,9 +235,9 @@ stage_line2 = "cut -f4- %s > %s"%(fMatrix,fMatrixDbg)
 doStageWithFlag("FixMatrixFormat","%s"%(stage_line2),".",flgStage5)
 
 #Optional - DebugDixonDomains(fMatrixDbg, fDomainsDbg, res)
-#stage_dbg_line = "matlab -nosplash -nodesktop -display %s -r \"DebugDixonDomains %s %s %s\""
-#stage_dbg_line = stage_dbg_line%(display,fMatrixDbg,fDomainsDbg,res)
-#doStageWithFlag('domain_debug',stage_dbg_line,path_to_matlab,flgDebugDixon and bool(display))
+stage_dbg_line = "matlab -nosplash -nodesktop -display %s -r \"DebugDixonDomains %s %s %s\""
+stage_dbg_line = stage_dbg_line%(display,fMatrixDbg,fDomainsDbg,res)
+doStageWithFlag('domain_debug',stage_dbg_line,path_to_matlab,flgDebugDixon and bool(display))
 
 #Stage 6 - GenerateModelFromTADs(fMatrix,fDomains,res,win,fModel)
 matlab_dump = output_dir + "/%s.%s.mdump2"%(prefix,chrname)
@@ -293,7 +292,7 @@ matlab_dump = os.path.abspath(matlab_dump)
 #	      PlotHrrcBed(fMatrix,fHrrcBed,s,e,res,filter,figPath)
 stage_line = "PlotHrrcBed %s %s %d %d %d %d %s"
 stage_line = stage_line%(fMatrixDbg,fBed,1,1000,res,0,fHrrcDebug)
-doMatlabStageWithFlag("DebugHierarchies",stage_line,path_to_matlab,matlab_dump,flgHrrcDebug)
+# doMatlabStageWithFlagDisplay("DebugHierarchies",stage_line,path_to_matlab,matlab_dump,flgHrrcDebug)
 
 #Stage 12 - Find potential enhancers - overrepresented areas interacting with promotor 
 matlab_dump = output_dir + "/%s.%s.mdump8"%(prefix,chrname)
@@ -301,5 +300,5 @@ matlab_dump = os.path.abspath(matlab_dump)
 #	      EnhancerPromoter(fnij,fme,fgenes,res,ch,out4,out3,out2,outRand)
 stage_line = "EnhancerPromoter %s %s %s %d %s %s %s %s %s %s"
 stage_line = stage_line%(fMatrixDbg,fMatrixModelEstimated,fGenes,res,chrnum,fEnh4,fEnh3,fEnh2,fEnhR,fEnh52) 
-#print stage_line
+print stage_line
 doMatlabStageWithFlag("EnhancerPromoter",stage_line,path_to_matlab,matlab_dump,flgEnh)
