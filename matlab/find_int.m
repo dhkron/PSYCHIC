@@ -1,4 +1,4 @@
-function [inter,F,D,R,PV,FD,V] = find_int(nij,hrr,pos,flank,thr,res)
+function [inter,F,D,R,PV,FD,V,X] = find_int(nij,hrr,pos,flank,thr,res)
 % inter - list of positions for interactions (relative distances)
 % F - Fitted value for each position (in above list)
 % D - Hi-C coverage for each window (currently 40K) in interaction with the promoter
