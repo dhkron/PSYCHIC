@@ -15,7 +15,12 @@ step=res;
 X=max(1,ceil(from/step)):min(ceil(to/step),size(nij,1));
 
 % extract data in triangle
-D1=nij(X,X); F1=hrr(X,X); MM = D1 - F1; 
+D1=nij(X,X); F1=hrr(X,X);
+
+% override model, just calculate power-law for data around promoter
+% F1 = fit_power_law(D1);
+
+MM = D1 - F1; 
 k2=length(X); k=ceil(k2/2);
 
 % stop if too small (e.g. ends of chromosmoes)
