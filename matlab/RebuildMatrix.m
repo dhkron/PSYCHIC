@@ -2,9 +2,16 @@
 % RES is actually the restored or rebuilt matrix.
 % It is NOT the difference between that data and the rebuilt matrix.
 %
-function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOutPath,res)
+function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOutPath,res,bilinear_fit)
 
 	addpath(genpath('BSFKFolder')); %%%%%%%%%%Give some errors
+
+    global bilinear_fit
+    if nargin < 6
+        bilinear_fit = true;
+    else
+        bilinear_fit = str2num(bilinear_fit);
+    end
 
 	if dxnPath == 0
 		skipDxn = true;
@@ -94,6 +101,7 @@ function [RES,Params,X] = GetResidual(bounds,nij,res)
 end
 
 function [newRES, grad] = calcTadGradient(DAT, RES, res)
+    global bilinear_fit
 	N=length(RES) - 1;
 	YY=ones(N,1);
 	i = 1;
@@ -132,14 +140,18 @@ function [newRES, grad] = calcTadGradient(DAT, RES, res)
 		%Split
 		logXX = log2(XX(II));
 		logL = log2(L(II));
-		[pp , ~]=BSFK(logXX, logL, 2, 2);
+        if bilinear_fit
+    		[pp , ~]=BSFK(logXX, logL, 2, 2);
+    		pbreak = pp.breaks(2);
+        else
+            pbreak = inf;
+        end
 		
-		logXX1 = logXX(logXX < pp.breaks(2));
-		logL1 = logL(logXX < pp.breaks(2));
-		logXX2 = logXX(logXX >= pp.breaks(2));
-		logL2 = logL(logXX >= pp.breaks(2));
+		logXX1 = logXX(logXX < pbreak);
+		logL1 = logL(logXX < pbreak);
+		logXX2 = logXX(logXX >= pbreak);
+		logL2 = logL(logXX >= pbreak);
 		
-		pbreak = pp.breaks(2);
 
 		%Regression
 		if length(logXX2) > 1 && length(logXX1) > 1 
@@ -176,7 +188,7 @@ function [newRES, grad] = calcTadGradient(DAT, RES, res)
 			oldDiag = diag(RES, i);
 			newDiag = zeros(1, length(oldDiag));
 			
-			if log2(i*res) < pp.breaks(2)
+			if log2(i*res) < pbreak
 				b = b1;
 			else
 				b = b2;

@@ -95,6 +95,10 @@ if c.has_option(sec, 'tad_init'):
     tad_init = c.get(sec, 'tad_init')
 else: # default init is DI
     tad_init = 'di'
+if c.has_option(sec, 'bilinear'):
+    bilinear = c.get(sec, 'bilinear').lower()
+else:
+    bilinear = 'true'
 
 # All paths should be absolute
 chrsize = os.path.abspath(chrsize)
@@ -232,9 +236,6 @@ if tad_init.lower() == 'di':
 elif tad_init.lower() == 'insulationscore':
     # Replaces Stages 1 - 4
     # Crane et al. 2015. http://www.nature.com/nature/journal/v523/n7559/full/nature14450.html#methods
-    #mat_line = "insulation_score_call_domains %s %s %s %s" % (fMatrix, res, fDomains, chrname)
-    #matlab_dump = output_dir + '/%s.%s.insulation_score.mdump' % (prefix, chrname)
-    #doMatlabStageWithFlag("InsulationScoreDomains", mat_line, path_to_matlab, matlab_dump, flgDomains)
     stage_line = "python insulation_score_tads.py %s %s %d > %s" % (fMatrix, chrname, res, fDomains)
     doStageWithFlag("InsulationScoreDomains", stage_line, path_to_insulation, flgDomains)
 elif tad_init.lower().startswith('shuffle'):
@@ -310,8 +311,9 @@ doMatlabStageWithFlag("FindHierarchies",stage_line,path_to_matlab,matlab_dump,fl
 matlab_dump = output_dir + "/%s.%s.mdump6"%(prefix,chrname)
 matlab_dump = os.path.abspath(matlab_dump)
 #	      ModelEstimate(matPath,bedPath,bedPathOut,emMatOut,res)
-stage_line = "ModelEstimate %s %s %s %s %d"
-stage_line = stage_line%(fMatrixDbg,fBed,fBedModelEstimated,fMatrixModelEstimated,res)
+stage_line = "ModelEstimate %s %s %s %s %d %s"
+stage_line = stage_line%(fMatrixDbg,fBed,fBedModelEstimated,fMatrixModelEstimated,res,bilinear)
+print stage_line
 doMatlabStageWithFlag("ModelEstimate",stage_line,path_to_matlab,matlab_dump,flgME)
 
 #Stage 11 - Create an image of the hierarchies 
