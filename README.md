@@ -2,7 +2,7 @@
 Code for finding putative enhancers using Hi-C data
 
 ### Usage
-python htad-chain \<config file\>
+python htad-chain.py \<config file\>
 
 For running the example use
 `python htad-chain.py examples/himr90.chr20.conf`
@@ -37,5 +37,7 @@ Main command line interface for PSYCHIC
 Main matlab files
 - **`domaincall_software/`**
 Slightly adapted files from [Hi-C DomainCaller](http://chromosome.sdsc.edu/mouse/hi-c/download.html)
+- **`insulation/`**
+Domain caller from Crane et al. and additional scripts [Insulation Score DomainCaller](https://github.com/dekkerlab/crane-nature-2015)
 - **`examples/`**
 Example files, contains config, Hi-C matrix, chromsome sizes and gene list

@@ -91,6 +91,10 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
+if c.has_option(sec, 'tad_init'):
+    tad_init = c.get(sec, 'tad_init')
+else: # default init is DI
+    tad_init = 'di'
 
 # All paths should be absolute
 chrsize = os.path.abspath(chrsize)
@@ -128,6 +132,7 @@ else:
 path_to_dixon = "domaincall_software"
 path_to_dixon_perl = path_to_dixon + "/perl_scripts"
 path_to_matlab = "matlab"
+path_to_insulation = "insulation"
 
 #All files should be converted to absolute path, because I'm using pushd and popd
 fMatrix = input_matrix_path
@@ -195,32 +200,55 @@ if flgShouldFixMatrix:
 else:
 	print "Not fixing matrix"
 
-#Stage 1 - ./DI_from_matrix.pl matrix.chrN @res @win @chrsize > DI.chrN
-line_mat_to_di = "perl DI_from_matrix.pl %s %s %s %s > %s"
-line_mat_to_di = line_mat_to_di%(fMatrix,res,win,chrsize,fDI)
 
-doStageWithFlag("DixonDI",line_mat_to_di,path_to_dixon_perl,flgDI)
+if tad_init.lower() == 'di':
+    #Stage 1 - ./DI_from_matrix.pl matrix.chrN @res @win @chrsize > DI.chrN
+    line_mat_to_di = "perl DI_from_matrix.pl %s %s %s %s > %s"
+    line_mat_to_di = line_mat_to_di%(fMatrix,res,win,chrsize,fDI)
 
-#Stage 2 - matlab -nodisplay -r "HMM_calls DI.chrN HMM.chrN
-matlab_dump = output_dir + "/%s.%s.mdump1"%(prefix,chrname)
-matlab_dump = os.path.abspath(matlab_dump)
-#line_hmm = "matlab -nodisplay -r \"HMM_calls %s %s; exit\" 2>%s 1>%s"
-#line_hmm = line_hmm%(fDI,fHMM,matlab_dump,matlab_dump)
-line_hmm = "HMM_calls %s %s"%(fDI,fHMM)
+    doStageWithFlag("DixonDI",line_mat_to_di,path_to_dixon_perl,flgDI)
 
-doMatlabStageWithFlag("DixonDomainHMMCalling",line_hmm,path_to_dixon,matlab_dump,flgHMM)
+    #Stage 2 - matlab -nodisplay -r "HMM_calls DI.chrN HMM.chrN
+    matlab_dump = output_dir + "/%s.%s.mdump1"%(prefix,chrname)
+    matlab_dump = os.path.abspath(matlab_dump)
+    #line_hmm = "matlab -nodisplay -r \"HMM_calls %s %s; exit\" 2>%s 1>%s"
+    #line_hmm = line_hmm%(fDI,fHMM,matlab_dump,matlab_dump)
+    line_hmm = "HMM_calls %s %s"%(fDI,fHMM)
 
-#Stage 3 - perl file_ends_cleaner.pl HMM.chrN DI.chrN | perl converter_7col.pl > 7col.chrN
-stage_line = "perl file_ends_cleaner.pl %s %s | perl converter_7col.pl > %s"
-stage_line = stage_line%(fHMM,fDI,f7col)
+    doMatlabStageWithFlag("DixonDomainHMMCalling",line_hmm,path_to_dixon,matlab_dump,flgHMM)
 
-doStageWithFlag("DixonDomains1",stage_line,path_to_dixon_perl,flg7col)
+    #Stage 3 - perl file_ends_cleaner.pl HMM.chrN DI.chrN | perl converter_7col.pl > 7col.chrN
+    stage_line = "perl file_ends_cleaner.pl %s %s | perl converter_7col.pl > %s"
+    stage_line = stage_line%(fHMM,fDI,f7col)
 
-#Stage 4 - perl hmm_probability_correcter.pl 7col.chrN @hmm_min @hmm_prob @res | perl hmm-state_caller.pl @chrsize @chr | perl hmm-state_domains.pl > domains.chrN
-stage_line = "perl hmm_probablity_correcter.pl %s %s %s %s | perl hmm-state_caller.pl %s %s | perl hmm-state_domains.pl > %s"
-stage_line = stage_line%(f7col,hmm_min,hmm_prob,res,chrsize,chrname,fDomains)
+    doStageWithFlag("DixonDomains1",stage_line,path_to_dixon_perl,flg7col)
 
-doStageWithFlag("DixonDomains2",stage_line,path_to_dixon_perl,flgDomains)
+    #Stage 4 - perl hmm_probability_correcter.pl 7col.chrN @hmm_min @hmm_prob @res | perl hmm-state_caller.pl @chrsize @chr | perl hmm-state_domains.pl > domains.chrN
+    stage_line = "perl hmm_probablity_correcter.pl %s %s %s %s | perl hmm-state_caller.pl %s %s | perl hmm-state_domains.pl > %s"
+    stage_line = stage_line%(f7col,hmm_min,hmm_prob,res,chrsize,chrname,fDomains)
+
+    doStageWithFlag("DixonDomains2",stage_line,path_to_dixon_perl,flgDomains)
+
+elif tad_init.lower() == 'insulationscore':
+    # Replaces Stages 1 - 4
+    # Crane et al. 2015. http://www.nature.com/nature/journal/v523/n7559/full/nature14450.html#methods
+    #mat_line = "insulation_score_call_domains %s %s %s %s" % (fMatrix, res, fDomains, chrname)
+    #matlab_dump = output_dir + '/%s.%s.insulation_score.mdump' % (prefix, chrname)
+    #doMatlabStageWithFlag("InsulationScoreDomains", mat_line, path_to_matlab, matlab_dump, flgDomains)
+    stage_line = "python insulation_score_tads.py %s %s %d > %s" % (fMatrix, chrname, res, fDomains)
+    doStageWithFlag("InsulationScoreDomains", stage_line, path_to_insulation, flgDomains)
+elif tad_init.lower().startswith('shuffle'):
+    # Replaces Stages 1 - 4
+    boundaries_to_shuffle = tad_init[len('shuffle '):]
+    if not os.path.exists(boundaries_to_shuffle):
+        print('To use random TAD initialization, set in tad_int "shuffle /path/to/original/domains.txt"')
+        exit(-1)
+    boundaries_to_shuffle = os.path.abspath(boundaries_to_shuffle)
+    stage_line = "python shuffle_tads.py %s %s > %s" % (boundaries_to_shuffle, chrname, fDomains)
+    doStageWithFlag("RandomDomains", stage_line, path_to_insulation, flgDomains)
+else:
+    print('tad_init should be configured to either "DI" (default), "InsulationScore" or "shuffle /path/to/original/domains.txt"')
+    exit(-1)
 
 #Stage 5 - Generate useful easy loadable files
 if not skipdixon:
@@ -300,5 +328,5 @@ matlab_dump = os.path.abspath(matlab_dump)
 #	      EnhancerPromoter(fnij,fme,fgenes,res,ch,out4,out3,out2,outRand)
 stage_line = "EnhancerPromoter %s %s %s %d %s %s %s %s %s %s"
 stage_line = stage_line%(fMatrixDbg,fMatrixModelEstimated,fGenes,res,chrnum,fEnh4,fEnh3,fEnh2,fEnhR,fEnh52) 
-print stage_line
+#print stage_line
 doMatlabStageWithFlag("EnhancerPromoter",stage_line,path_to_matlab,matlab_dump,flgEnh)
