@@ -73,6 +73,15 @@ def makeAbsFile(tmp):
 	fName = os.path.abspath(fName)
 	return fName
 
+def config_get_with_default(c, sec, arg, default, boolean=False):
+    if c.has_option(sec, arg):
+        if boolean:
+            return c.getboolean(sec, arg)
+        else:
+            return c.get(sec, arg)
+    else:
+        return default
+
 #Load config from file
 if len(sys.argv) < 2:
 	print "Usage: %s <ConfigFile> <Display>"%sys.argv[0]
@@ -91,14 +100,8 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
-if c.has_option(sec, 'tad_init'):
-    tad_init = c.get(sec, 'tad_init')
-else: # default init is DI
-    tad_init = 'di'
-if c.has_option(sec, 'bilinear'):
-    bilinear = c.get(sec, 'bilinear').lower()
-else:
-    bilinear = 'true'
+tad_init = config_get_with_default(c, sec, 'tad_init', 'di')
+bilinear = config_get_with_default(c, sec, 'bilinear', 'true').lower()
 
 # All paths should be absolute
 chrsize = os.path.abspath(chrsize)
@@ -106,23 +109,15 @@ output_dir = os.path.abspath(output_dir)
 input_matrix_path = os.path.abspath(input_matrix_path)
 fGenes = os.path.abspath(fGenes)
 
-try:
-	skipdixon = c.getboolean(sec,'skip_dixon')
-	try:
-		domainpath = c.get(sec,'domain_path')
-	except ConfigParser.NoOptionError:
-		domainpath = ""
-except ConfigParser.NoOptionError:
-	skipdixon = False
+skipdixon = config_get_with_default(c, sec, 'skip_dixon', False, True)
+domainpath = config_get_with_default(c, sec,'domain_path', '')
+skip_hierarchy = config_get_with_default(c, sec, 'skip_hierarchy', False, True)
 
-try:
-	flgDebugDixon = c.getboolean(sec,'debug_dixon_domains')
-except ConfigParser.NoOptionError:
-	flgDebugDixon = False
-try:
-	flgDebugCompare = c.getboolean(sec,'debug_compare')
-except ConfigParser.NoOptionError:
-	flgDebugCompare = False
+flgDebugDixon = config_get_with_default(c, sec, 'debug_dixon_domains', False, True)
+flgDebugCompare = config_get_with_default(c, sec, 'debug_compare', False, True)
+
+if skip_hierarchy:
+    skipdixon = True
 
 #Params for Dixon subchain
 hmm_min = 2
@@ -170,11 +165,15 @@ flgDI = not os.path.exists(fDI) and not skipdixon
 flgHMM = not os.path.exists(fHMM) and not skipdixon
 flg7col = not os.path.exists(f7col) and not skipdixon
 flgDomains = not os.path.exists(fDomains) and not skipdixon
-flgModel = not os.path.exists(fModel)
-flgProbMatrixes = not (os.path.exists(fPrTMap) and os.path.exists(fPrBMap) and os.path.exists(fSupersum) and os.path.exists(fLLR))
-flgStage5 = not (os.path.exists(fMatrixDbg) and os.path.exists(fDomainsDbg))
-flgNewTads = not (os.path.exists(fMatrixDbg) and os.path.exists(fNewDomains))
-flgBed = not (os.path.exists(fBed))
+flgModel = not os.path.exists(fModel) and not skip_hierarchy
+flgProbMatrixes = not (os.path.exists(fPrTMap) and \
+                       os.path.exists(fPrBMap) and \
+                       os.path.exists(fSupersum) and \
+                       os.path.exists(fLLR)) and \
+                  not skip_hierarchy
+flgStage5 = not (os.path.exists(fMatrixDbg) and os.path.exists(fDomainsDbg)) and not skip_hierarchy
+flgNewTads = not (os.path.exists(fMatrixDbg) and os.path.exists(fNewDomains)) and not skip_hierarchy
+flgBed = not (os.path.exists(fBed)) and not skip_hierarchy
 flgME = not (os.path.exists(fBedModelEstimated))
 flgHrrcDebug = not (os.path.exists(fHrrcDebug))
 flgEnh = not (os.path.exists(fEnh4) and os.path.exists(fEnh3) and os.path.exists(fEnh2) and os.path.exists(fEnhR) and os.path.exists(fEnh52)) 
