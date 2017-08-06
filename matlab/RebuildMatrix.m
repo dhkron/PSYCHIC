@@ -82,7 +82,7 @@ end
 function [RES,Params,X] = GetResidual(bounds,nij,res)
 	RES = NaN*ones(size(nij));
 	Params = NaN*ones(9,size(bounds,1)+1); % +1 for sky
-	for i=1:length(bounds)
+	for i=1:size(bounds, 1)
 		X = bounds(i,1):bounds(i,2);
 		if length(X)==1
 			RES(X,X) = nij(X,X);

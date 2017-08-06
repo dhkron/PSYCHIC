@@ -312,7 +312,6 @@ matlab_dump = os.path.abspath(matlab_dump)
 #	      ModelEstimate(matPath,bedPath,bedPathOut,emMatOut,res)
 stage_line = "ModelEstimate %s %s %s %s %d %s"
 stage_line = stage_line%(fMatrixDbg,fBed,fBedModelEstimated,fMatrixModelEstimated,res,bilinear)
-print stage_line
 doMatlabStageWithFlag("ModelEstimate",stage_line,path_to_matlab,matlab_dump,flgME)
 
 #Stage 11 - Create an image of the hierarchies 
