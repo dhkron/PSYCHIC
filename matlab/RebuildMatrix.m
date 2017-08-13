@@ -60,10 +60,10 @@ function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOu
 	end
 
 	%RMSE
-	fprintf('RMSE of Tads hierarchies %g\r\n',GetRMSE(RES_Hrr,nij,res));
+	fprintf('RMSE of Tads hierarchies %g (log scale)\r\n',GetRMSE(RES_Hrr,nij,res));
 	if ~skipDxn
-		fprintf('RMSE of Tads without hierarchies %g\r\n',GetRMSE(RES_Tad,nij,res));
-		fprintf('RMSE of Dixon with no hierarchies %g\r\n',GetRMSE(RES_Dxn,nij,res));
+		fprintf('RMSE of Tads without hierarchies %g (log scale)\r\n',GetRMSE(RES_Tad,nij,res));
+		fprintf('RMSE of Dixon with no hierarchies %g (log scale)\r\n',GetRMSE(RES_Dxn,nij,res));
 	end
 
 	%Write beds
@@ -249,7 +249,7 @@ function [grad,stats] = find_power_law(DAT, RES, res, N)
         stats = NaN;
         grad = [0 0]';
     else
-        [grad,~,~,~,stats] = A\b;
+        [grad,~,~,~,stats] = regress(b, A);
     end
     
 end
