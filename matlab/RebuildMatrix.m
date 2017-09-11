@@ -74,13 +74,13 @@ function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOu
 	end
 end
 
-function [RMSE] = GetRMSE(RES,nij,res) %Changed by Dror Moran on 21.2.16
+function [RMSE] = GetRMSE(RES,nij,res) % Interactions up to 5Mb apart
 	clear_diag = CreateDiagMatrix(size(RES,1), 1, floor(5000000/res));
 	RES(~clear_diag) = NaN; %Set anything above 5m to NaN
     % make sure there are no NaNs between 2nd diagonal and max distance
     assert(~any(isnan(RES(clear_diag == 1))));
-    r1 = log2(nij(nij > 0));
-    r2 = log2(RES(nij > 0));
+    r1 = log2(nij(nij > 0 & RES>0));
+    r2 = log2(RES(nij > 0 & RES>0));
 	RES_sq = (r1 - r2).^2;
 	RMSE = sqrt(nanmean(RES_sq(:)));
 end
@@ -160,7 +160,7 @@ function [newRES, grad] = calcTadGradient(DAT, RES, res)
        
             %Regression
             if length(logXX2) > 1 && length(logXX1) > 1 
-                disp('bilinear');
+                % disp('bilinear');
                 YY1 = ones(length(logL1),1);
                 [b1,~,~,~,stat1]=regress(logL1', [logXX1', YY1]);
                 YY2 = ones(length(logL2),1);
@@ -172,7 +172,7 @@ function [newRES, grad] = calcTadGradient(DAT, RES, res)
                     stat2=stat1;
                 end
             else
-                disp('linear');
+                % disp('linear');
                 YY = ones(length(logL),1);
                 [b1,~,~,~,stat1]=regress(logL', [logXX', YY]);
                 b2=[NaN;NaN];
@@ -185,7 +185,7 @@ function [newRES, grad] = calcTadGradient(DAT, RES, res)
             stat2 = NaN;
         end 
 	elseif ValueCount == 1
-		 b1 = [NaN;NaN]; b2 = [NaN;NaN]; stat1 = NaN; stat2 = NaN; display('TAD with less then 10 values!!!'); %%%%Maybe Change if happend
+		b1 = [NaN;NaN]; b2 = [NaN;NaN]; stat1 = NaN; stat2 = NaN;
 	else
 		b1 = [NaN;NaN]; b2 = [NaN;NaN]; stat1 = NaN; stat2 = NaN;
 	end
