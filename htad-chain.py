@@ -82,10 +82,36 @@ def config_get_with_default(c, sec, arg, default, boolean=False):
     else:
         return default
 
+def show_help():
+    print
+    print("PSYCHIC - finding enhancers using Hi-C data")
+    print
+    print("Usage: %s <ConfigFile> [<Display>]" % sys.argv[0])
+    print
+    print
+    print("Config file's arguments:")
+    print("\tres - resolution in bases")
+    print("\twin - window size in bases")
+    print("\tchrname - chromosome name")
+    print("\tchrsize - path to a chrom.sizes file")
+    print("\toutput_prefix - prepend to output files")
+    print("\toutput_dir - output directory")
+    print("\tinput_matrix - path to Hi-C matrix")
+    print("\tgenes_file - path to genes bed file")
+    print("Optional arguments:")
+    print("\ttad_init - TAD initialization method ('DI', 'InsuationScore' or 'shuffle /path/to/tads.bed')")
+    print("\tbilinear - whether to use bilinear regression, true (default) or false")
+    print("\tskip_dixon - skip dixon TAD calling and use supplied domains")
+    print("\tdomain_path - path to domains file")
+    print("\tskip_hierarchy - skip domain merging")
+    print
+    print("For more information see: https://github.com/dhkron/PSYCHIC") 
+
 #Load config from file
-if len(sys.argv) < 2:
-	print "Usage: %s <ConfigFile> <Display>"%sys.argv[0]
-	exit()
+if len(sys.argv) < 2 or len(sys.argv) > 3 or \
+   "-h" in sys.argv or "--help" in sys.argv:
+    show_help()
+    exit()
 c = ConfigParser.ConfigParser()
 c.read(sys.argv[1])
 sec = c.sections()[0]

@@ -60,10 +60,10 @@ function [RES_Hrr,RES_Tad,RES_Dxn] = RebuildMatrix(matPath,bedPath,dxnPath,bedOu
 	end
 
 	%RMSE
-	fprintf('RMSE of Tads hierarchies %g (log scale)\r\n',GetRMSE(RES_Hrr,nij,res));
+	fprintf('RMSE of Tads hierarchies %g (linear scale)\r\n',GetRMSE(RES_Hrr,nij,res));
 	if ~skipDxn
-		fprintf('RMSE of Tads without hierarchies %g (log scale)\r\n',GetRMSE(RES_Tad,nij,res));
-		fprintf('RMSE of Dixon with no hierarchies %g (log scale)\r\n',GetRMSE(RES_Dxn,nij,res));
+		fprintf('RMSE of Tads without hierarchies %g (linear scale)\r\n',GetRMSE(RES_Tad,nij,res));
+		fprintf('RMSE of Dixon with no hierarchies %g (linear scale)\r\n',GetRMSE(RES_Dxn,nij,res));
 	end
 
 	%Write beds
@@ -77,11 +77,12 @@ end
 function [RMSE] = GetRMSE(RES,nij,res) % Interactions up to 5Mb apart
 	clear_diag = CreateDiagMatrix(size(RES,1), 1, floor(5000000/res));
 	RES(~clear_diag) = NaN; %Set anything above 5m to NaN
-    % make sure there are no NaNs between 2nd diagonal and max distance
-    assert(~any(isnan(RES(clear_diag == 1))));
-    r1 = log2(nij(nij > 0 & RES>0));
-    r2 = log2(RES(nij > 0 & RES>0));
-	RES_sq = (r1 - r2).^2;
+	% make sure there are no NaNs between 2nd diagonal and max distance
+	assert(~any(isnan(RES(clear_diag == 1))));
+	% r1 = log2(nij(nij > 0 & RES>0));
+	% r2 = log2(RES(nij > 0 & RES>0));
+	% RES_sq = (r1 - r2).^2;
+	RES_sq = (RES-nij).^2;
 	RMSE = sqrt(nanmean(RES_sq(:)));
 end
 
