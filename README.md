@@ -46,16 +46,18 @@ Then, each cell (\< i,j \>) should contain the number of contacts between the ma
 
 ### Output files
 The program outputs multiple intermediate files, and final enhancers files.
-`.7col`,`.DI`,`.HMM` used by Directionality Index domain caller
-`.domains`, `domains.txt` the domains found be the specified TAD-calling algorithm
-`.prob.{bg,tad}.matrix.txt`,`supersum.txt` the probabilstic parameters, based on the given domains
-`.domains.new.txt` refined domains found by the program
-`.hierarchy.bed` the constructed hierarchy of the domains
-`.model.estimated.matrix.txt` the model, estimated using the data, in tab deilimeted format
-`.model.estimated.params.bed` the power-law decay parameters for the model, each line represents a TAD
-`.llr.txt` the log-likelihood ratio of observed counts and the model
-`.enh_p.bed` bed file of over represented pairs with FDR value < p
-`.enh_rand.bed` random interactions (with promoters), used for debugging and comparison
-`.mdump` files are the outputs of executed matlab functions, for debugging.
-`.fixed_matrix` the input matrix converted to the desired format
+
+- `.7col`,`.DI`,`.HMM` used by Directionality Index domain caller
+- `.domains`, `domains.txt` the domains found be the specified TAD-calling algorithm
+- `.prob.{bg,tad}.matrix.txt`,`supersum.txt` the probabilstic parameters, based on the given domains
+- `.domains.new.txt` refined domains found by the program
+- `.hierarchy.bed` the constructed hierarchy of the domains
+- `.model.estimated.matrix.txt` the model, estimated using the data, in tab deilimeted format
+- `.model.estimated.params.bed` the power-law decay parameters for the model, each line represents a TAD
+- `.llr.txt` the log-likelihood ratio of observed counts and the model
+- `.enh_p.bed` bed file of over represented pairs with FDR value < p
+- `.enh_rand.bed` random interactions (with promoters), used for debugging and comparison
+- `.mdump` files are the outputs of executed matlab functions, for debugging.
+- `.fixed_matrix` the input matrix converted to the desired format
+
 The prefix specified in the configuration file is prepended to the mentioned names
