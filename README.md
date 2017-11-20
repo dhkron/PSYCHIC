@@ -48,7 +48,7 @@ The rest of the matrix should be _symmetric_, with each cell (\< i,j \>) contain
 ### Output files
 The program outputs multiple intermediate files, and final enhancers files.
 
-- `.enh_\<p\>.bed` bed file of over-represented pairs with FDR value < p
+- `.enh_p.bed` bed file of over-represented pairs with FDR value < p
 - `.model.estimated.params.bed` the power-law parameters for the model, each line represents a TAD / merge / Sky
   Specifically, fields include \[ chr start end \], class \{ TAD / merge / Sky \}, parameters for first (or only) power-law
   segment \[ slope, intersect, RMSE \], same for second power-law segment (or NaN), transition point between two models, in log2(bp).
