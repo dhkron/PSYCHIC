@@ -2,7 +2,7 @@
 Code for finding putative enhancers using Hi-C data
 
 ### Usage
-python htad-chain.py `\<config file\>`
+python htad-chain.py `<config file>`
 
 For running the example use
 `python htad-chain.py examples/himr90.chr20.conf`
