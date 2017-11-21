@@ -2,7 +2,7 @@
 Code for finding putative enhancers using Hi-C data
 
 ### Usage
-python htad-chain.py `\<config file\>`
+python htad-chain.py `<config file>`
 
 For running the example use
 `python htad-chain.py examples/himr90.chr20.conf`
@@ -41,23 +41,28 @@ Domain caller from Crane et al. and additional scripts [Insulation Score DomainC
 Example files, contains config, Hi-C matrix, chromsome sizes and gene list
 
 ### Input matrix
-`input_matrix` should be in a _symmetric_ csv or tab-delimitered file, specifying the Hi-C data (for a given chomromsome). The first column could be either empty or contain the names of each genomic segment (in a fixed stride, as specified in the `res` variable).
-Then, each cell (\< i,j \>) should contain the number of contacts between the matching segments in the chromosome. These data could be previously normalized to account for various Hi-C biases, and is assumed to be _symmetric_. See example under `examples/hIMR90.chr20.matrix.txt`.
+`input_matrix` should be in a csv or tab-delimitered file, specifying the Hi-C data (for a given chomromsome).
+The first column could be either empty or contain the names of each genomic segment (in a fixed stride, as specified in the `res` variable).
+The rest of the matrix should be _symmetric_, with each cell (\< i,j \>) containing the number of contacts between the matching segments in the chromosome. These data could be previously normalized to account for various Hi-C biases, and is assumed to be _symmetric_. See example under `examples/hIMR90.chr20.matrix.txt`.
 
 ### Output files
 The program outputs multiple intermediate files, and final enhancers files.
 
-- `.7col`,`.DI`,`.HMM` used by Directionality Index domain caller
-- `.domains`, `domains.txt` the domains found be the specified TAD-calling algorithm
-- `.prob.{bg,tad}.matrix.txt`,`supersum.txt` the probabilstic parameters, based on the given domains
+- `.enh_p.bed` bed file of over-represented pairs with FDR value < p
+- `.model.estimated.params.bed` the power-law parameters for the model, each line represents a TAD / merge / Sky
+  Specifically, fields include \[ chr start end \], class \{ TAD / merge / Sky \}, parameters for first (or only) power-law
+  segment \[ slope, intersect, RMSE \], same for second power-law segment (or NaN), transition point between two models, in log2(bp).
+
+Temporary files
+- `.enh_rand.bed` set of random interactions with promoters, used as control for near-promoter enrichment values
+- `.domains`, `domains.txt` the domains found be the specified TAD-calling algorithm (DI/Insulation Score)
 - `.domains.new.txt` refined domains found by the program
-- `.hierarchy.bed` the constructed hierarchy of the domains
+- `.7col`,`.DI`,`.HMM` used by Directionality Index domain caller
+- `.prob.{bg,tad}.matrix.txt`,`supersum.txt` the probabilstic parameters, based on the given domains
 - `.model.estimated.matrix.txt` the model, estimated using the data, in tab deilimeted format
-- `.model.estimated.params.bed` the power-law decay parameters for the model, each line represents a TAD
 - `.llr.txt` the log-likelihood ratio of observed counts and the model
-- `.enh_p.bed` bed file of over represented pairs with FDR value < p
-- `.enh_rand.bed` random interactions (with promoters), used for debugging and comparison
-- `.mdump` files are the outputs of executed matlab functions, for debugging.
+- `.hierarchy.bed` the constructed hierarchy of the domains
+- `.mdump*` files are the outputs of executed matlab functions, for debugging.
 - `.fixed_matrix` the input matrix converted to the desired format
 
-The prefix specified in the configuration file is prepended to the mentioned names
+The prefix specified in the configuration file is prepended to the mentioned names `output_prefix` and `chrname`
