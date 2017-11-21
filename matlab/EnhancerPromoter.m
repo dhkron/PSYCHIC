@@ -67,14 +67,15 @@ for i=1:N,
 	fprintf(fid3,'%s\t%d\t%d\t%s:%.0fKb:%.2g:%.2g:%.2g:%.2g\n', chr{i}, enh_end-step, enh_end, G(i).name, XX(j)/1e3, FD(j), PV(j), F(j), D(j));
     end
     
-    I=find(rand(1,length(PV))<1e-2);
     PVrnd = rand(1,length(PV)); FDrnd = PVrnd;
     % [~,FDrnd] = mafdr(PVrnd,'Lambda',0.05);
     I=find(PVrnd<=1e-2);
     for j=[I]
         enh_end = step*gene_ind + XX(j);
-        % fprintf(fid4,'%s\t%d\t%d\t%s:%.0fKb:%.2g\n', chr{i}, enh_end-step, enh_end, G(i).name, XX(j)/1e3, FD(j));
-	fprintf(fid4,'%s\t%d\t%d\t%s:%.0fKb:%.2g:%.2g:%.2g:%.2g\n', chr{i}, enh_end-step, enh_end, G(i).name, XX(j)/1e3, FDrnd(j), PVrnd(j), F(j), D(j));
+        if enh_end-step >= 0
+            % fprintf(fid4,'%s\t%d\t%d\t%s:%.0fKb:%.2g\n', chr{i}, enh_end-step, enh_end, G(i).name, XX(j)/1e3, FD(j));
+    	    fprintf(fid4,'%s\t%d\t%d\t%s:%.0fKb:%.2g:%.2g:%.2g:%.2g\n', chr{i}, enh_end-step, enh_end, G(i).name, XX(j)/1e3, FDrnd(j), PVrnd(j), F(j), D(j));
+        end
     end
 
     I=find(FD<=5e-2);
