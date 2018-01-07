@@ -577,7 +577,8 @@ die("\nERROR: insulationSquareSize cannot be larger than dataset ($insulationSqu
 print "\n" if($verbose);
 
 my $inputMatrixName=getFileName($inputMatrix);
-$inputMatrixName .= ".is".$insulationSquareSizeDistance.".ids".$insulationDeltaBinSizeDistance;
+#$inputMatrixName .= ".is".$insulationSquareSizeDistance.".ids".$insulationDeltaBinSizeDistance;
+$inputMatrixName .= ".out";
 
 #read Matrix
 print "reading matrix into hash (subset=".(($insulationSquareSizeDistance*2)+$headerSizing).")...\n" if($verbose);

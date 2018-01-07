@@ -99,7 +99,7 @@ def show_help():
     print("\tinput_matrix - path to Hi-C matrix")
     print("\tgenes_file - path to genes bed file")
     print("Optional arguments:")
-    print("\ttad_init - TAD initialization method ('DI', 'InsuationScore' or 'shuffle /path/to/tads.bed')")
+    print("\ttad_init - TAD initialization method ('DI', 'InsulationScore [delta_span]' or 'shuffle /path/to/tads.bed')")
     print("\tbilinear - whether to use bilinear regression, true (default) or false")
     print("\tskip_dixon - skip dixon TAD calling and use supplied domains")
     print("\tdomain_path - path to domains file")
@@ -258,10 +258,14 @@ if tad_init.lower() == 'di':
 
     doStageWithFlag("DixonDomains2",stage_line,path_to_dixon_perl,flgDomains)
 
-elif tad_init.lower() == 'insulationscore':
+elif tad_init.lower().startswith('insulationscore'):
+    if ' ' in tad_init.strip():
+        delta_span = tad_init.split(' ')[1]
+    else:
+        delta_span = ''
     # Replaces Stages 1 - 4
     # Crane et al. 2015. http://www.nature.com/nature/journal/v523/n7559/full/nature14450.html#methods
-    stage_line = "python insulation_score_tads.py %s %s %d > %s" % (fMatrix, chrname, res, fDomains)
+    stage_line = "python insulation_score_tads.py %s %s %d %s > %s" % (fMatrix, chrname, res, delta_span, fDomains)
     doStageWithFlag("InsulationScoreDomains", stage_line, path_to_insulation, flgDomains)
 elif tad_init.lower().startswith('shuffle'):
     # Replaces Stages 1 - 4
