@@ -14,7 +14,7 @@ use POSIX qw(ceil floor);
 use List::Util qw[min max];
 use Cwd 'abs_path';
 use Cwd;
-
+use lib '.';
 use cworld::crane_nature2015 qw(:all);
 
 sub check_options {
