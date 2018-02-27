@@ -104,6 +104,7 @@ def show_help():
     print("\tskip_dixon - skip dixon TAD calling and use supplied domains")
     print("\tdomain_path - path to domains file")
     print("\tskip_hierarchy - skip domain merging")
+    print("\tvirt4C_file - path to virtual 4C baits bed file")
     print
     print("For more information see: https://github.com/dhkron/PSYCHIC") 
 
@@ -126,6 +127,7 @@ output_dir = c.get(sec,'output_dir')
 input_matrix_path = c.get(sec,'input_matrix')
 chrnum = chrname.replace('chr','')
 fGenes = c.get(sec,'genes_file')
+fGenes4C = config_get_with_default(c, sec, 'virt4C_file', False)
 tad_init = config_get_with_default(c, sec, 'tad_init', 'di')
 bilinear = config_get_with_default(c, sec, 'bilinear', 'true').lower()
 
@@ -134,6 +136,7 @@ chrsize = os.path.abspath(chrsize)
 output_dir = os.path.abspath(output_dir)
 input_matrix_path = os.path.abspath(input_matrix_path)
 fGenes = os.path.abspath(fGenes)
+fGenes4C = os.path.abspath(fGenes4C) if fGenes4C else False
 
 skipdixon = config_get_with_default(c, sec, 'skip_dixon', False, True)
 domainpath = config_get_with_default(c, sec,'domain_path', '')
@@ -232,7 +235,7 @@ else:
 
 if tad_init.lower() == 'di':
     #Stage 1 - ./DI_from_matrix.pl matrix.chrN @res @win @chrsize > DI.chrN
-    line_mat_to_di = "perl DI_from_matrix.pl %s %s %s %s > %s"
+    line_mat_to_di = "perl DI_from_matrix.pl %s %s %s %s >& %s"
     line_mat_to_di = line_mat_to_di%(fMatrix,res,win,chrsize,fDI)
 
     doStageWithFlag("DixonDI",line_mat_to_di,path_to_dixon_perl,flgDI)
@@ -247,13 +250,13 @@ if tad_init.lower() == 'di':
     doMatlabStageWithFlag("DixonDomainHMMCalling",line_hmm,path_to_dixon,matlab_dump,flgHMM)
 
     #Stage 3 - perl file_ends_cleaner.pl HMM.chrN DI.chrN | perl converter_7col.pl > 7col.chrN
-    stage_line = "perl file_ends_cleaner.pl %s %s | perl converter_7col.pl > %s"
+    stage_line = "perl file_ends_cleaner.pl %s %s | perl converter_7col.pl >& %s"
     stage_line = stage_line%(fHMM,fDI,f7col)
 
     doStageWithFlag("DixonDomains1",stage_line,path_to_dixon_perl,flg7col)
 
     #Stage 4 - perl hmm_probability_correcter.pl 7col.chrN @hmm_min @hmm_prob @res | perl hmm-state_caller.pl @chrsize @chr | perl hmm-state_domains.pl > domains.chrN
-    stage_line = "perl hmm_probablity_correcter.pl %s %s %s %s | perl hmm-state_caller.pl %s %s | perl hmm-state_domains.pl > %s"
+    stage_line = "perl hmm_probablity_correcter.pl %s %s %s %s | perl hmm-state_caller.pl %s %s | perl hmm-state_domains.pl >& %s"
     stage_line = stage_line%(f7col,hmm_min,hmm_prob,res,chrsize,chrname,fDomains)
 
     doStageWithFlag("DixonDomains2",stage_line,path_to_dixon_perl,flgDomains)
@@ -265,7 +268,8 @@ elif tad_init.lower().startswith('insulationscore'):
         delta_span = ''
     # Replaces Stages 1 - 4
     # Crane et al. 2015. http://www.nature.com/nature/journal/v523/n7559/full/nature14450.html#methods
-    stage_line = "python insulation_score_tads.py %s %s %d %s > %s" % (fMatrix, chrname, res, delta_span, fDomains)
+    stage_line = "python insulation_score_tads.py %s %s %d %s >& %s" % (fMatrix, chrname, res, delta_span, fDomains)
+    print(stage_line)
     doStageWithFlag("InsulationScoreDomains", stage_line, path_to_insulation, flgDomains)
 elif tad_init.lower().startswith('shuffle'):
     # Replaces Stages 1 - 4
@@ -274,7 +278,7 @@ elif tad_init.lower().startswith('shuffle'):
         print('To use random TAD initialization, set in tad_int "shuffle /path/to/original/domains.txt"')
         exit(-1)
     boundaries_to_shuffle = os.path.abspath(boundaries_to_shuffle)
-    stage_line = "python shuffle_tads.py %s %s > %s" % (boundaries_to_shuffle, chrname, fDomains)
+    stage_line = "python shuffle_tads.py %s %s >& %s" % (boundaries_to_shuffle, chrname, fDomains)
     doStageWithFlag("RandomDomains", stage_line, path_to_insulation, flgDomains)
 else:
     print('tad_init should be configured to either "DI" (default), "InsulationScore" or "shuffle /path/to/original/domains.txt"')
@@ -289,7 +293,7 @@ elif not domainpath == "":
 	fDomainsDbg = domainpath
 
 #Fix matrix file
-stage_line2 = "cut -f4- %s > %s"%(fMatrix,fMatrixDbg)
+stage_line2 = "cut -f4- %s >& %s"%(fMatrix,fMatrixDbg)
 doStageWithFlag("FixMatrixFormat","%s"%(stage_line2),".",flgStage5)
 
 #Optional - DebugDixonDomains(fMatrixDbg, fDomainsDbg, res)
@@ -360,3 +364,11 @@ stage_line = "EnhancerPromoter %s %s %s %d %s %s %s %s %s %s"
 stage_line = stage_line%(fMatrixDbg,fMatrixModelEstimated,fGenes,res,chrnum,fEnh4,fEnh3,fEnh2,fEnhR,fEnh52) 
 #print stage_line
 doMatlabStageWithFlag("EnhancerPromoter",stage_line,path_to_matlab,matlab_dump,flgEnh)
+
+#Stage 13 - Find potential enhancers - overrepresented areas interacting with promotor 
+matlab_dump = output_dir + "/%s.%s.mdump9"%(prefix,chrname)
+matlab_dump = os.path.abspath(matlab_dump)
+# EnhancerPromoter_virt4C(fnij,fme,fgenes,res,ch,out52)
+stage_line = "EnhancerPromoter_virt4C %s %s %s %d %s %s"
+stage_line = stage_line%(fMatrixDbg,fMatrixModelEstimated,fGenes4C,res,chrnum,fEnh52) 
+doMatlabStageWithFlag("EnhancerPromoter_virt4C",stage_line,path_to_matlab,matlab_dump,fGenes4C)
